@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Geese/Geese.csproj" />
+  <Project Path="helpbot/helpbot.csproj" />
+  <Project Path="Music Man/Music Man.csproj" />
+  <Project Path="Simp/Simp.csproj" />
+</Solution>
