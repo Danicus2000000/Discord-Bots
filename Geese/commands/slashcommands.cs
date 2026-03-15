@@ -1,21 +1,21 @@
-﻿using System;
-using System.Threading.Tasks;
-using DSharpPlus.SlashCommands;
+﻿using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using DSharpPlus.VoiceNext;
+using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 /*
  * To Complete:
  * Make geese all work together
  * */
 namespace Geese.commands
 {
-    internal class slashcommands : ApplicationCommandModule
+    internal class SlashCommands : ApplicationCommandModule
     {
         [SlashCommand("logout", "Shuts down the bot")]
         [SlashRequireUserPermissions(DSharpPlus.Permissions.Administrator)]
-        public async Task Logout(InteractionContext ctx)
+        public static async Task Logout(InteractionContext ctx)
         {
             await ctx.CreateResponseAsync("I have logged out!");
             await ctx.Client.DisconnectAsync();//dsiconnect client
@@ -23,7 +23,7 @@ namespace Geese.commands
         }
 
         [SlashCommand("flock", "flocks and honks")]
-        public async Task Play(InteractionContext ctx)
+        public static async Task Play(InteractionContext ctx)
         {
             // check whether VNext is enabled
             var vnext = ctx.Client.GetVoiceNext();//gets voice state
@@ -42,7 +42,7 @@ namespace Geese.commands
                     await ctx.CreateResponseAsync("You need to be in a voice channel in order for bot to auto connect!");//throw exception
                     return;
                 }
-                Random test = new Random();
+                Random test = new();
                 int offset = test.Next(0, 1500);
                 Thread.Sleep(offset);
                 vnc = await vnext.ConnectAsync(chn);//connect
@@ -52,7 +52,7 @@ namespace Geese.commands
                 await vnc.WaitForPlaybackFinishAsync();
 
             // play
-            Exception exc = null;
+            Exception exc;
 
             try
             {
@@ -65,7 +65,7 @@ namespace Geese.commands
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                 };
-                Random test = new Random();
+                Random test = new();
                 int offset = test.Next(0, 5000);
                 Thread.Sleep(offset);
                 var ffmpeg = Process.Start(psi);
@@ -88,7 +88,7 @@ namespace Geese.commands
             }
         }
         [SlashCommand("deflock", "Leaves the voice channel")]
-        public async Task leave(InteractionContext ctx)
+        public static async Task Leave(InteractionContext ctx)
         {
             var vnext = ctx.Client.GetVoiceNext();//get voice client
             var vnc = vnext.GetConnection(ctx.Guild);//gets connection state

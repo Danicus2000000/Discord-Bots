@@ -1,7 +1,7 @@
-﻿using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity.Enums;
-using DSharpPlus.Interactivity;
-using DSharpPlus;
+﻿using DSharpPlus;
+using DSharpPlus.EventArgs;
+using DSharpPlus.SlashCommands;
+using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Logging;
 using Music_Man.commands;
 using Newtonsoft.Json;
@@ -9,8 +9,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.VoiceNext;
 
 namespace Music_Man
 {

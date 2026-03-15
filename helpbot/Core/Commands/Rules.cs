@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Text;
-using System.Net;
-
-using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 namespace helpbot.Core.Commands
 {
-    public class Rules: ModuleBase<SocketCommandContext>
+    public class Rules : ModuleBase<SocketCommandContext>
     {
         //[Command("Rules"), Alias("RuleBook", "guide"), Summary("Life sucks but follow rules!")]
         //public async Task ServerRules()

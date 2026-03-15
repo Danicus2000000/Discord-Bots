@@ -1,18 +1,12 @@
 ﻿using DSharpPlus;
-using System;
-using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-namespace OwO.commands
+using System;
+using System.Threading.Tasks;
+namespace Simp.commands
 {
     public class FunSlashCommands : ApplicationCommandModule
     {
-        ////test command to ensure bot works correctly
-        //[SlashCommand("ping", "Responds to Ping with Pong")]
-        //public async Task Ping(InteractionContext ctx)
-        //{
-        //    await ctx.CreateResponseAsync("Pong");//answers ping with pong
-        //}
         [SlashCommand("simp4me", "Sends a random simp message")]
         public static async Task SimpForMe(InteractionContext ctx)
         {
@@ -21,6 +15,7 @@ namespace OwO.commands
             int result = random.Next(0, options.Length);
             await ctx.CreateResponseAsync(options[result]);
         }
+
         [SlashRequireUserPermissions(Permissions.Administrator)]
         [SlashCommand("logout", "Shuts down the bot")]
         public static async Task Logout(InteractionContext ctx)

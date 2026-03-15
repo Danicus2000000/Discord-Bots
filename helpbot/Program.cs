@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Discord;
+using Discord.Commands;
+using Discord.WebSocket;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.IO;
-using Discord;
-using Discord.WebSocket;
-using Discord.Commands;
-using Discord.Audio;
 namespace helpbot
 {
     class Program
@@ -19,7 +17,7 @@ namespace helpbot
         {
             Client = new DiscordSocketClient(new DiscordSocketConfig
             {
-                LogLevel =LogSeverity.Debug
+                LogLevel = LogSeverity.Debug
             });
             Commands = new CommandService(new CommandServiceConfig
             {
@@ -58,7 +56,7 @@ namespace helpbot
             int argspos = 0;
             if (!(message.HasCharPrefix('!', ref argspos) || message.HasMentionPrefix(Client.CurrentUser, ref argspos))) return;
 
-            var Result = await Commands.ExecuteAsync(Context, argspos,null);
+            var Result = await Commands.ExecuteAsync(Context, argspos, null);
 
             if (!Result.IsSuccess)
             {

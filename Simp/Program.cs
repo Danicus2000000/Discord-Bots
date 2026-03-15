@@ -1,26 +1,24 @@
-﻿using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity.Enums;
+﻿using DSharpPlus;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus;
+using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Simp.commands;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.SlashCommands;
-using OwO.commands;
 
-namespace OwO
+namespace Simp
 {
     class Program
     {
         static void Main(string[] args)
         {
             MainAsync().GetAwaiter().GetResult();
-            //var bot = new bot();//instantiates bot class
-            //bot.RunAsync().GetAwaiter().GetResult();//runs bot
         }
         static async Task MainAsync()
         {
@@ -41,15 +39,6 @@ namespace OwO
             discord.GuildAvailable += Client_GuildAvailable;//add guilds avilable event
             discord.ClientErrored += Client_ClientError;//adds client error event
             await discord.ConnectAsync();
-            //var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
-            //{
-            //    StringPrefixes = new[] { config.commandprefix },
-            //    EnableMentionPrefix = true,//enables mention useage rather than prefix
-            //    EnableDms = false,//disables dm usage
-            //    IgnoreExtraArguments = true//cuts off unrequired arguments
-
-            //});
-            //commands.RegisterCommands<funCommands>();
             var slash = discord.UseSlashCommands();
             slash.RegisterCommands<FunSlashCommands>();
             await Task.Delay(-1);

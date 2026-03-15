@@ -1,13 +1,13 @@
-﻿using DSharpPlus.EventArgs;
-using DSharpPlus;
+﻿using DSharpPlus;
+using DSharpPlus.EventArgs;
+using DSharpPlus.SlashCommands;
+using DSharpPlus.VoiceNext;
+using Geese.commands;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.SlashCommands;
-using DSharpPlus.VoiceNext;
-using Geese.commands;
 
 namespace Geese
 {
@@ -32,7 +32,7 @@ namespace Geese
         static async Task MainAsync()
         {
             ConfigJson config = GetJSON().Result;
-             var config1 = new DiscordConfiguration()
+            var config1 = new DiscordConfiguration()
             {
                 Token = config.Token1,//sets token
                 TokenType = TokenType.Bot,//sets token type
@@ -74,7 +74,7 @@ namespace Geese
                 AutoReconnect = true,//ensures bot attempts reconnect if connection is lost
                 MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Debug,//debug log
             };//client configuration settings
-            Client1= new DiscordClient(config1);//initialises client with discord config set above
+            Client1 = new DiscordClient(config1);//initialises client with discord config set above
             Client2 = new DiscordClient(config2);//initialises client with discord config set above
             Client3 = new DiscordClient(config3);//initialises client with discord config set above
             Client4 = new DiscordClient(config4);//initialises client with discord config set above
@@ -116,18 +116,18 @@ namespace Geese
             await Client4.ConnectAsync();//connects to discord asyncronously
             await Client5.ConnectAsync();//connects to discord asyncronously
             await Client6.ConnectAsync();//connects to discord asyncronously
-            var slash=Client1.UseSlashCommands();
+            var slash = Client1.UseSlashCommands();
             var slash2 = Client2.UseSlashCommands();
             var slash3 = Client3.UseSlashCommands();
             var slash4 = Client4.UseSlashCommands();
             var slash5 = Client5.UseSlashCommands();
             var slash6 = Client6.UseSlashCommands();
-            slash.RegisterCommands<slashcommands>();
-            slash2.RegisterCommands<slashcommands>();
-            slash3.RegisterCommands<slashcommands>();
-            slash4.RegisterCommands<slashcommands>();
-            slash5.RegisterCommands<slashcommands>();
-            slash6.RegisterCommands<slashcommands>();
+            slash.RegisterCommands<SlashCommands>();
+            slash2.RegisterCommands<SlashCommands>();
+            slash3.RegisterCommands<SlashCommands>();
+            slash4.RegisterCommands<SlashCommands>();
+            slash5.RegisterCommands<SlashCommands>();
+            slash6.RegisterCommands<SlashCommands>();
             await Task.Delay(-1);//ensures bot cannot accidentally quit
         }
 

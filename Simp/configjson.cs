@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace OwO
+namespace Simp
 {
     public struct ConfigJson
     {

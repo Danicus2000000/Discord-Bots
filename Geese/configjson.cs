@@ -13,7 +13,7 @@ namespace Geese
         [JsonProperty(nameof(Token4))]//gets token from json file sets it to store in token
         public string Token4 { get; private set; }
         [JsonProperty(nameof(Token5))]//gets token from json file sets it to store in token
-        public string Token5{ get; private set; }
+        public string Token5 { get; private set; }
         [JsonProperty(nameof(Token6))]//gets token from json file sets it to store in token
         public string Token6 { get; private set; }
     }
