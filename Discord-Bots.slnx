@@ -3,4 +3,5 @@
   <Project Path="Music Man/Music Man.csproj" />
   <Project Path="Server Servant/Server Servant.csproj" />
   <Project Path="Simp/Simp.csproj" />
+  <Project Path="Snakebot/Snakebot.csproj" />
 </Solution>
