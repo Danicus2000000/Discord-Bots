@@ -19,12 +19,5 @@ namespace Snakebot.Commands
         {
             await ctx.CreateResponseAsync("Snakebot has one command:\n/logout - (Requires Server Administrator) Logs out the bot and terminates the local client");//goodbye message
         }
-
-        [SlashCommand("Test", "A cron job update test")]
-        [SlashRequireUserPermissions(DSharpPlus.Permissions.Administrator)]
-        public static async Task Test(InteractionContext ctx)
-        {
-            await ctx.CreateResponseAsync("It worked!");
-        }
     }
 }
