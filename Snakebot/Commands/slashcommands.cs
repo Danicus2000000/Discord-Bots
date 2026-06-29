@@ -13,7 +13,7 @@ namespace Snakebot.Commands
             Environment.Exit(0);//kill program
         }
 
-        [SlashCommand("Help", "Explains what the bot can do (Requires Admin)!")]
+        [SlashCommand("Help", "Explains what the bot can do (Requires Admin)!blehblejh")]
         [SlashRequireUserPermissions(DSharpPlus.Permissions.Administrator)]
         public static async Task Help(InteractionContext ctx)
         {
