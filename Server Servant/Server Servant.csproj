@@ -17,7 +17,7 @@
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.3" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.2" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.Lavalink" Version="4.5.3">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
