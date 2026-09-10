@@ -52,7 +52,6 @@ namespace Geese.commands
                 await vnc.WaitForPlaybackFinishAsync();
 
             // play
-            Exception exc;
 
             try
             {
@@ -60,7 +59,7 @@ namespace Geese.commands
                 await ctx.CreateResponseAsync("I have flocked");
                 var psi = new ProcessStartInfo//starts ffmeg process
                 {
-                    FileName = "ffmpeg.exe",
+                    FileName = "ffmpeg",
                     Arguments = $@"-i ""{"HONK.mp3"}"" -ac 2 -f s16le -ar 48000 pipe:1 -vol 256",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
@@ -79,7 +78,6 @@ namespace Geese.commands
                 await vnc.SendSpeakingAsync(true);//send speaking prompt
 
             }
-            catch (Exception ex) { exc = ex; }
             finally
             {
                 await vnc.SendSpeakingAsync(false);

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,23 +10,17 @@
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.3" />
-    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.5.2" />
+    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.5.3" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="ffmpeg.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="HONK.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="opus.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="sodium.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
