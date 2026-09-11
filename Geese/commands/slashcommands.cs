@@ -1,9 +1,8 @@
-﻿using DSharpPlus.SlashCommands;
+﻿using DSharpPlus.Lavalink;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using DSharpPlus.VoiceNext;
 using System;
-using System.Diagnostics;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 /*
  * To Complete:
@@ -25,15 +24,15 @@ namespace Geese.commands
         [SlashCommand("flock", "flocks and honks")]
         public static async Task Play(InteractionContext ctx)
         {
-            // check whether VNext is enabled
-            var vnext = ctx.Client.GetVoiceNext();//gets voice state
-            if (vnext == null)//if vnext not enabled
+            // check whether Lavalink is enabled
+            var lavalink = ctx.Client.GetLavalink();
+            if (lavalink == null)//if lavalink not enabled
             {
-                await ctx.CreateResponseAsync("Vnext is not enabled or configured!");
+                await ctx.CreateResponseAsync("Lavalink is not enabled or configured!");
                 return;
             }
 
-            var vnc = vnext.GetConnection(ctx.Guild);//gets connection state
+            var vnc = lavalink.GetGuildConnection(ctx.Guild);//gets connection state
             if (vnc == null)//if we are not connected
             {
                 var chn = ctx.Member?.VoiceState?.Channel;//gets message member voice channel
@@ -42,61 +41,50 @@ namespace Geese.commands
                     await ctx.CreateResponseAsync("You need to be in a voice channel in order for bot to auto connect!");//throw exception
                     return;
                 }
-                Random test = new();
-                int offset = test.Next(0, 1500);
-                Thread.Sleep(offset);
-                vnc = await vnext.ConnectAsync(chn);//connect
+
+                var node = lavalink.ConnectedNodes.Values.First();
+                vnc = await node.ConnectAsync(chn);
             }
-            // wait for current playback to finish
-            while (vnc.IsPlaying)
-                await vnc.WaitForPlaybackFinishAsync();
 
             // play
-
             try
             {
-                await vnc.SendSpeakingAsync(true);//send speaking prompt
                 await ctx.CreateResponseAsync("I have flocked");
-                var psi = new ProcessStartInfo//starts ffmeg process
-                {
-                    FileName = "ffmpeg",
-                    Arguments = $@"-i ""{"HONK.mp3"}"" -ac 2 -f s16le -ar 48000 pipe:1 -vol 256",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                };
-                Random test = new();
-                int offset = test.Next(0, 5000);
-                Thread.Sleep(offset);
-                var ffmpeg = Process.Start(psi);
-                var ffout = ffmpeg.StandardOutput.BaseStream;
+                string honkPath = $"https://www.dropbox.com/scl/fi/4z1bit7hqtahkd5eal9wu/HONK.mp3?rlkey=8mgc54j83gmdiw2vli1t5l455&st=fqpin5cr&dl=1";
+                var result = await vnc.GetTracksAsync(new Uri(honkPath));//send speaking prompt
+                var track = result.Tracks.FirstOrDefault();
+                if (result.LoadResultType == LavalinkLoadResultType.NoMatches || track == null)
+                    throw new InvalidOperationException("Lavalink could not load the attachment.");
 
-                var txStream = vnc.GetTransmitSink();
-                await ffout.CopyToAsync(txStream);//clones ffmpeg stream to discord call
-                await txStream.FlushAsync();
-                await vnc.WaitForPlaybackFinishAsync();
+                if (result.LoadResultType == LavalinkLoadResultType.LoadFailed)
+                    throw new InvalidOperationException(result.Exception.Message);
 
-                await vnc.SendSpeakingAsync(true);//send speaking prompt
-
+                await vnc.PlayAsync(track);
             }
             finally
             {
-                await vnc.SendSpeakingAsync(false);
-                vnc.Disconnect();
                 await ctx.EditResponseAsync(new DSharpPlus.Entities.DiscordWebhookBuilder().WithContent("Flock Completed"));
             }
         }
+
         [SlashCommand("deflock", "Leaves the voice channel")]
         public static async Task Leave(InteractionContext ctx)
         {
-            var vnext = ctx.Client.GetVoiceNext();//get voice client
-            var vnc = vnext.GetConnection(ctx.Guild);//gets connection state
-            if (vnc == null)//if no state
+            var lavalink = ctx.Client.GetLavalink();
+            if (lavalink == null)
             {
-                await ctx.CreateResponseAsync("Not connected to this guild!");//throws error
+                await ctx.CreateResponseAsync("Lavalink is not enabled or configured!");
                 return;
             }
-            await ctx.CreateResponseAsync("I have deflocked!");
-            vnc.Disconnect();//disconnect
+
+            var vnc = lavalink.GetGuildConnection(ctx.Guild);
+            if (vnc == null)//if no state
+            {
+                await ctx.CreateResponseAsync("Not connected in this guild!");
+                return;
+            }
+            await vnc.DisconnectAsync();
+            await ctx.CreateResponseAsync("I have deflocked.");
         }
     }
 }

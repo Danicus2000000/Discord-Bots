@@ -16,5 +16,19 @@ namespace Geese
         public string Token5 { get; private set; }
         [JsonProperty(nameof(Token6))]//gets token from json file sets it to store in token
         public string Token6 { get; private set; }
+        [JsonProperty(nameof(Lavalink))]
+        public LavalinkConfig Lavalink { get; private set; }
+    }
+
+    public sealed class LavalinkConfig
+    {
+        [JsonProperty(nameof(RestEndpoint))]
+        public string RestEndpoint { get; private set; }
+
+        [JsonProperty(nameof(SocketEndpoint))]
+        public string SocketEndpoint { get; private set; }
+
+        [JsonProperty(nameof(Password))]
+        public string Password { get; private set; }
     }
 }

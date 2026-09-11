@@ -1,7 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
-using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Logging;
 using Music_Man.commands;
 using Newtonsoft.Json;
@@ -25,28 +25,37 @@ namespace Music_Man
             {
                 Token = config.Token,
                 TokenType = TokenType.Bot,
-                Intents = DiscordIntents.AllUnprivileged,
+                Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildVoiceStates,
                 MinimumLogLevel = LogLevel.Information,
             });
-            var voiceconfig = new VoiceNextConfiguration//sets up voice
-            {
-                EnableIncoming = false,//disables incoming voice
-                AudioFormat = AudioFormat.Default//default audio formatting
-            };
-            VoiceNextExtension voice = discord.UseVoiceNext(voiceconfig);//enables voice
+            var lavalink = discord.UseLavalink();//enables Lavalink voice
             discord.Ready += OnClientReady;//adds client ready event
             discord.GuildAvailable += Client_GuildAvailable;//add guilds avilable event
             discord.ClientErrored += Client_ClientError;//adds client error event
-            await discord.ConnectAsync();
+
             var slash = discord.UseSlashCommands();
             slash.RegisterCommands<SlashCommands>();
+
+            await discord.ConnectAsync();
+            var restEndpoint = new Uri(config.Lavalink.RestEndpoint);
+            var socketEndpoint = new Uri(config.Lavalink.SocketEndpoint);
+            var lavalinkRestEndpoint = new DSharpPlus.Net.ConnectionEndpoint(restEndpoint.Host, restEndpoint.Port, restEndpoint.Scheme == "https");
+            var lavalinkSocketEndpoint = new DSharpPlus.Net.ConnectionEndpoint(socketEndpoint.Host, socketEndpoint.Port, socketEndpoint.Scheme == "wss");
+            await lavalink.ConnectAsync(new LavalinkConfiguration
+            {
+                RestEndpoint = lavalinkRestEndpoint,
+                SocketEndpoint = lavalinkSocketEndpoint,
+                Password = config.Lavalink.Password,
+                SocketAutoReconnect = true,
+            });
             await Task.Delay(-1);
         }
 
         static async Task<ConfigJson> GetJSON()
         {
             string json = string.Empty;//will store json
-            using (FileStream fs = File.OpenRead("config.json"))
+            string configPath = Path.Combine(AppContext.BaseDirectory, "config.json");
+            using (FileStream fs = File.OpenRead(configPath))
             {
                 using StreamReader sr = new(fs, new UTF8Encoding(false));
                 json = await sr.ReadToEndAsync();//loads json as string

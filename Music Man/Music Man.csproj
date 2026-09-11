@@ -10,15 +10,22 @@
     <PackageReference Include="DSharpPlus" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.3" />
+    <PackageReference Include="DSharpPlus.Lavalink" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.3" />
-    <PackageReference Include="DSharpPlus.VoiceNext" Version="4.5.3" />
+    <PackageReference Include="Lavalink4NET.DSharpPlus" Version="4.2.2" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="libopus.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="opus.dll">
+    <None Update="libsodium.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="sodium.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
