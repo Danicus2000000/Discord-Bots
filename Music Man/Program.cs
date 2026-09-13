@@ -1,7 +1,7 @@
 ﻿using DSharpPlus;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
+using DiscordBots;
 using Microsoft.Extensions.Logging;
 using Music_Man.commands;
 using Newtonsoft.Json;
@@ -28,26 +28,25 @@ namespace Music_Man
                 Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildVoiceStates,
                 MinimumLogLevel = LogLevel.Information,
             });
-            var lavalink = discord.UseLavalink();//enables Lavalink voice
             discord.Ready += OnClientReady;//adds client ready event
             discord.GuildAvailable += Client_GuildAvailable;//add guilds avilable event
             discord.ClientErrored += Client_ClientError;//adds client error event
+
+            var restEndpoint = new Uri(config.Lavalink.RestEndpoint);
+            var socketEndpoint = new Uri(config.Lavalink.SocketEndpoint);
+            var lavalink = Lavalink4NetServiceFactory.Create(
+                discord,
+                restEndpoint,
+                Lavalink4NetServiceFactory.GetWebSocketUri(socketEndpoint),
+                config.Lavalink.Password,
+                "Music Man");
+            LavalinkAudioServices.Register(discord, lavalink.AudioService);
 
             var slash = discord.UseSlashCommands();
             slash.RegisterCommands<SlashCommands>();
 
             await discord.ConnectAsync();
-            var restEndpoint = new Uri(config.Lavalink.RestEndpoint);
-            var socketEndpoint = new Uri(config.Lavalink.SocketEndpoint);
-            var lavalinkRestEndpoint = new DSharpPlus.Net.ConnectionEndpoint(restEndpoint.Host, restEndpoint.Port, restEndpoint.Scheme == "https");
-            var lavalinkSocketEndpoint = new DSharpPlus.Net.ConnectionEndpoint(socketEndpoint.Host, socketEndpoint.Port, socketEndpoint.Scheme == "wss");
-            await lavalink.ConnectAsync(new LavalinkConfiguration
-            {
-                RestEndpoint = lavalinkRestEndpoint,
-                SocketEndpoint = lavalinkSocketEndpoint,
-                Password = config.Lavalink.Password,
-                SocketAutoReconnect = true,
-            });
+            await lavalink.StartAsync();
             await Task.Delay(-1);
         }
 

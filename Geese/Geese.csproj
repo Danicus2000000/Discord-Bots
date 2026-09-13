@@ -9,11 +9,13 @@
     <PackageReference Include="DSharpPlus" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.5.3" />
-    <PackageReference Include="DSharpPlus.Lavalink" Version="4.5.3" />
     <PackageReference Include="DSharpPlus.SlashCommands" Version="4.5.3" />
+    <PackageReference Include="Lavalink4NET.DSharpPlus" Version="4.2.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\Shared\Lavalink4NetServiceFactory.cs" Link="Lavalink4NetServiceFactory.cs" />
+    <Compile Include="..\Shared\LavalinkAudioServices.cs" Link="LavalinkAudioServices.cs" />
     <None Update="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

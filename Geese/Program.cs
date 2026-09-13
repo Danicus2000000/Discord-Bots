@@ -1,11 +1,12 @@
-﻿using DSharpPlus;
+﻿using DiscordBots;
+using DSharpPlus;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
 using Geese.commands;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,12 +20,15 @@ namespace Geese
         public static DiscordClient Client4 { get; private set; }//stores client
         public static DiscordClient Client5 { get; private set; }//stores client
         public static DiscordClient Client6 { get; private set; }//stores client
-        public static LavalinkExtension Voice1 { get; set; }//stores voice client
-        public static LavalinkExtension Voice2 { get; set; }//stores voice client
-        public static LavalinkExtension Voice3 { get; set; }//stores voice client
-        public static LavalinkExtension Voice4 { get; set; }//stores voice client
-        public static LavalinkExtension Voice5 { get; set; }//stores voice client
-        public static LavalinkExtension Voice6 { get; set; }//stores voice client
+        public static DiscordClient[] Clients => new[]
+        {
+            Client1,
+            Client2,
+            Client3,
+            Client4,
+            Client5,
+            Client6,
+        };
         static void Main(string[] args)
         {
             MainAsync().GetAwaiter().GetResult();
@@ -86,30 +90,43 @@ namespace Geese
             Client4 = new DiscordClient(config4);//initialises client with discord config set above
             Client5 = new DiscordClient(config5);//initialises client with discord config set above
             Client6 = new DiscordClient(config6);//initialises client with discord config set above
-            Voice1 = Client1.UseLavalink();//enables voice
             Client1.Ready += OnClientReady;//adds client ready event
             Client1.GuildAvailable += Client_GuildAvailable;//adds guild avilable event
             Client1.ClientErrored += Client_ClientError;//adds client error event
-            Voice2 = Client2.UseLavalink();//enables voice
             Client2.Ready += OnClientReady;//adds client ready event
             Client2.GuildAvailable += Client_GuildAvailable;//adds guild avilable event
             Client2.ClientErrored += Client_ClientError;//adds client error event
-            Voice3 = Client3.UseLavalink();//enables voice
             Client3.Ready += OnClientReady;//adds client ready event
             Client3.GuildAvailable += Client_GuildAvailable;//adds guild avilable event
             Client3.ClientErrored += Client_ClientError;//adds client error event
-            Voice4 = Client4.UseLavalink();//enables voice
             Client4.Ready += OnClientReady;//adds client ready event
             Client4.GuildAvailable += Client_GuildAvailable;//adds guild avilable event
             Client4.ClientErrored += Client_ClientError;//adds client error event
-            Voice5 = Client5.UseLavalink();//enables voice
             Client5.Ready += OnClientReady;//adds client ready event
             Client5.GuildAvailable += Client_GuildAvailable;//adds guild avilable event
             Client5.ClientErrored += Client_ClientError;//adds client error event
-            Voice6 = Client6.UseLavalink();//enables voice
             Client6.Ready += OnClientReady;//adds client ready event
             Client6.GuildAvailable += Client_GuildAvailable;//adds guild avilable event
             Client6.ClientErrored += Client_ClientError;//adds client error event
+
+            var restEndpoint = new Uri(config.Lavalink.RestEndpoint);
+            var socketEndpoint = new Uri(config.Lavalink.SocketEndpoint);
+            var webSocketUri = Lavalink4NetServiceFactory.GetWebSocketUri(socketEndpoint);
+            var lavalinkServices = new[]
+            {
+                Lavalink4NetServiceFactory.Create(Client1, restEndpoint, webSocketUri, config.Lavalink.Password, "Geese bot 1"),
+                Lavalink4NetServiceFactory.Create(Client2, restEndpoint, webSocketUri, config.Lavalink.Password, "Geese bot 2"),
+                Lavalink4NetServiceFactory.Create(Client3, restEndpoint, webSocketUri, config.Lavalink.Password, "Geese bot 3"),
+                Lavalink4NetServiceFactory.Create(Client4, restEndpoint, webSocketUri, config.Lavalink.Password, "Geese bot 4"),
+                Lavalink4NetServiceFactory.Create(Client5, restEndpoint, webSocketUri, config.Lavalink.Password, "Geese bot 5"),
+                Lavalink4NetServiceFactory.Create(Client6, restEndpoint, webSocketUri, config.Lavalink.Password, "Geese bot 6"),
+            };
+            LavalinkAudioServices.Register(Client1, lavalinkServices[0].AudioService);
+            LavalinkAudioServices.Register(Client2, lavalinkServices[1].AudioService);
+            LavalinkAudioServices.Register(Client3, lavalinkServices[2].AudioService);
+            LavalinkAudioServices.Register(Client4, lavalinkServices[3].AudioService);
+            LavalinkAudioServices.Register(Client5, lavalinkServices[4].AudioService);
+            LavalinkAudioServices.Register(Client6, lavalinkServices[5].AudioService);
 
             var slash = Client1.UseSlashCommands();
             var slash2 = Client2.UseSlashCommands();
@@ -131,46 +148,7 @@ namespace Geese
             await Client5.ConnectAsync();//connects to discord asyncronously
             await Client6.ConnectAsync();//connects to discord asyncronously
 
-            var restEndpoint = new Uri(config.Lavalink.RestEndpoint);
-            var socketEndpoint = new Uri(config.Lavalink.SocketEndpoint);
-            var lavalinkRestEndpoint = new DSharpPlus.Net.ConnectionEndpoint(restEndpoint.Host, restEndpoint.Port, restEndpoint.Scheme == "https");
-            var lavalinkSocketEndpoint = new DSharpPlus.Net.ConnectionEndpoint(socketEndpoint.Host, socketEndpoint.Port, socketEndpoint.Scheme == "wss");
-            await Voice1.ConnectAsync(new LavalinkConfiguration
-            {
-                RestEndpoint = lavalinkRestEndpoint,
-                SocketEndpoint = lavalinkSocketEndpoint,
-                SocketAutoReconnect = true,
-            });
-            await Voice2.ConnectAsync(new LavalinkConfiguration
-            {
-                RestEndpoint = lavalinkRestEndpoint,
-                SocketEndpoint = lavalinkSocketEndpoint,
-                SocketAutoReconnect = true,
-            });
-            await Voice3.ConnectAsync(new LavalinkConfiguration
-            {
-                RestEndpoint = lavalinkRestEndpoint,
-                SocketEndpoint = lavalinkSocketEndpoint,
-                SocketAutoReconnect = true,
-            });
-            await Voice4.ConnectAsync(new LavalinkConfiguration
-            {
-                RestEndpoint = lavalinkRestEndpoint,
-                SocketEndpoint = lavalinkSocketEndpoint,
-                SocketAutoReconnect = true,
-            });
-            await Voice5.ConnectAsync(new LavalinkConfiguration
-            {
-                RestEndpoint = lavalinkRestEndpoint,
-                SocketEndpoint = lavalinkSocketEndpoint,
-                SocketAutoReconnect = true,
-            });
-            await Voice6.ConnectAsync(new LavalinkConfiguration
-            {
-                RestEndpoint = lavalinkRestEndpoint,
-                SocketEndpoint = lavalinkSocketEndpoint,
-                SocketAutoReconnect = true,
-            });
+            await Task.WhenAll(lavalinkServices.Select(service => service.StartAsync()));
 
             await Task.Delay(-1);//ensures bot cannot accidentally quit
         }

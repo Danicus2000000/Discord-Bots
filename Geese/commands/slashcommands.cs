@@ -1,90 +1,122 @@
-﻿using DSharpPlus.Lavalink;
+using DiscordBots;
+using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Lavalink4NET.Extensions;
+using Lavalink4NET.Players;
+using Lavalink4NET.Players.Queued;
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
-/*
- * To Complete:
- * Make geese all work together
- * */
+
 namespace Geese.commands
 {
     internal class SlashCommands : ApplicationCommandModule
     {
         [SlashCommand("logout", "Shuts down the bot")]
-        [SlashRequireUserPermissions(DSharpPlus.Permissions.Administrator)]
+        [SlashRequireUserPermissions(Permissions.Administrator)]
         public static async Task Logout(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync("I have logged out!");
-            await ctx.Client.DisconnectAsync();//dsiconnect client
-            Environment.Exit(0);//kill program
+            await ctx.CreateResponseAsync("Logging out all bots...");
+
+            var failures = new List<string>();
+            foreach (var client in Program.Clients)
+            {
+                try
+                {
+                    await client.DisconnectAsync();
+                }
+                catch (Exception ex)
+                {
+                    failures.Add($"{client.CurrentUser?.Username ?? "Unknown bot"}: {ex.GetType().Name}: {ex.Message}");
+                }
+            }
+
+            if (failures.Count > 0)
+            {
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(
+                    $"Some bots could not be logged out:\n{string.Join("\n", failures)}"));
+            }
+            Environment.Exit(0);
         }
 
         [SlashCommand("flock", "flocks and honks")]
         public static async Task Play(InteractionContext ctx)
         {
-            // check whether Lavalink is enabled
-            var lavalink = ctx.Client.GetLavalink();
-            if (lavalink == null)//if lavalink not enabled
+            var channel = ctx.Member?.VoiceState?.Channel;
+            if (channel == null)
             {
-                await ctx.CreateResponseAsync("Lavalink is not enabled or configured!");
+                await ctx.CreateResponseAsync("You need to be in a voice channel in order for the bot to connect!");
                 return;
             }
 
-            var vnc = lavalink.GetGuildConnection(ctx.Guild);//gets connection state
-            if (vnc == null)//if we are not connected
-            {
-                var chn = ctx.Member?.VoiceState?.Channel;//gets message member voice channel
-                if (chn == null)
-                {
-                    await ctx.CreateResponseAsync("You need to be in a voice channel in order for bot to auto connect!");//throw exception
-                    return;
-                }
-
-                var node = lavalink.ConnectedNodes.Values.First();
-                vnc = await node.ConnectAsync(chn);
-            }
-
-            // play
             try
             {
-                await ctx.CreateResponseAsync("I have flocked");
-                string honkPath = $"https://www.dropbox.com/scl/fi/4z1bit7hqtahkd5eal9wu/HONK.mp3?rlkey=8mgc54j83gmdiw2vli1t5l455&st=fqpin5cr&dl=1";
-                var result = await vnc.GetTracksAsync(new Uri(honkPath));//send speaking prompt
-                var track = result.Tracks.FirstOrDefault();
-                if (result.LoadResultType == LavalinkLoadResultType.NoMatches || track == null)
-                    throw new InvalidOperationException("Lavalink could not load the attachment.");
+                await ctx.CreateResponseAsync("Flocking all bots...");
 
-                if (result.LoadResultType == LavalinkLoadResultType.LoadFailed)
-                    throw new InvalidOperationException(result.Exception.Message);
+                var failures = new List<string>();
+                foreach (var client in Program.Clients)
+                {
+                    try
+                    {
+                        var player = await LavalinkAudioServices.Get(client).Players.JoinAsync(
+                            ctx.Guild.Id,
+                            channel.Id,
+                            PlayerFactory.Queued,
+                            new QueuedLavalinkPlayerOptions(),
+                            CancellationToken.None);
+                        await player.PlayAsync(
+                            new Uri("https://www.dropbox.com/scl/fi/4z1bit7hqtahkd5eal9wu/HONK.mp3?rlkey=8mgc54j83gmdiw2vli1t5l455&st=fqpin5cr&raw=1"),
+                            enqueue: false,
+                            cancellationToken: CancellationToken.None);
+                    }
+                    catch (Exception ex)
+                    {
+                        failures.Add($"{client.CurrentUser?.Username ?? "Unknown bot"}: {ex.GetType().Name}: {ex.Message}");
+                    }
+                }
 
-                await vnc.PlayAsync(track);
+                var message = failures.Count == 0
+                    ? "Flock Completed"
+                    : $"Flock completed with {failures.Count} failure(s):\n{string.Join("\n", failures)}";
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(message));
             }
-            finally
+            catch (Exception ex)
             {
-                await ctx.EditResponseAsync(new DSharpPlus.Entities.DiscordWebhookBuilder().WithContent("Flock Completed"));
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(
+                    $"An exception occurred during playback: `{ex.GetType()}: {ex.Message}`"));
             }
         }
 
         [SlashCommand("deflock", "Leaves the voice channel")]
         public static async Task Leave(InteractionContext ctx)
         {
-            var lavalink = ctx.Client.GetLavalink();
-            if (lavalink == null)
+            await ctx.CreateResponseAsync("Deflocking all bots...");
+
+            var disconnected = 0;
+            var failures = new List<string>();
+            foreach (var client in Program.Clients)
             {
-                await ctx.CreateResponseAsync("Lavalink is not enabled or configured!");
-                return;
+                try
+                {
+                    if (LavalinkAudioServices.Get(client).Players.TryGetPlayer(ctx.Guild.Id, out ILavalinkPlayer player))
+                    {
+                        await player.DisconnectAsync();
+                        disconnected++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    failures.Add($"{client.CurrentUser?.Username ?? "Unknown bot"}: {ex.GetType().Name}: {ex.Message}");
+                }
             }
 
-            var vnc = lavalink.GetGuildConnection(ctx.Guild);
-            if (vnc == null)//if no state
-            {
-                await ctx.CreateResponseAsync("Not connected in this guild!");
-                return;
-            }
-            await vnc.DisconnectAsync();
-            await ctx.CreateResponseAsync("I have deflocked.");
+            var message = failures.Count == 0
+                ? $"Deflocked {disconnected} bot(s)."
+                : $"Deflocked {disconnected} bot(s) with {failures.Count} failure(s):\n{string.Join("\n", failures)}";
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(message));
         }
     }
 }
