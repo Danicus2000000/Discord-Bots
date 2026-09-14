@@ -1,7 +1,7 @@
-﻿using DSharpPlus;
+﻿using DiscordBots;
+using DSharpPlus;
 using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
-using DiscordBots;
 using Microsoft.Extensions.Logging;
 using Music_Man.commands;
 using Newtonsoft.Json;
@@ -26,7 +26,7 @@ namespace Music_Man
                 Token = config.Token,
                 TokenType = TokenType.Bot,
                 Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildVoiceStates,
-                MinimumLogLevel = LogLevel.Information,
+                MinimumLogLevel = LogLevel.Debug,
             });
             discord.Ready += OnClientReady;//adds client ready event
             discord.GuildAvailable += Client_GuildAvailable;//add guilds avilable event

@@ -1,8 +1,5 @@
 ﻿using DSharpPlus;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.Enums;
-using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -29,11 +26,6 @@ namespace Simp
                 TokenType = TokenType.Bot,
                 Intents = DiscordIntents.AllUnprivileged,
                 MinimumLogLevel = LogLevel.Debug,
-            });
-            discord.UseInteractivity(new InteractivityConfiguration()
-            {
-                PollBehaviour = PollBehaviour.KeepEmojis,
-                Timeout = TimeSpan.FromSeconds(30)
             });
             discord.Ready += OnClientReady;//adds client ready event
             discord.GuildAvailable += Client_GuildAvailable;//add guilds avilable event
