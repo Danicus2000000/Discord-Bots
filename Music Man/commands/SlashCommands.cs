@@ -17,6 +17,8 @@ namespace Music_Man.commands
     internal class SlashCommands : ApplicationCommandModule
     {
         private const string NotConnectedMessage = "Not connected in this guild!";
+        private const string EnabledMessage = "enabled";
+        private const string DisabledMessage = "disabled";
 
         [SlashCommand("logout", "logs out the bot")]
         [SlashRequireUserPermissions(Permissions.Administrator)]
@@ -190,6 +192,96 @@ namespace Music_Man.commands
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(
                     $"An exception occurred during playback: `{ex.GetType()}: {ex.Message}`"));
+            }
+        }
+
+        [SlashCommand("loop", "Enables or disables looping the current track")]
+        public static async Task LoopCurrentTrack(InteractionContext ctx)
+        {
+            try
+            {
+                var player = await GetAudioService(ctx).Players.GetPlayerAsync<QueuedLavalinkPlayer>(
+                    ctx.Guild.Id);
+
+                if (player == null)
+                {
+                    await ctx.CreateResponseAsync(NotConnectedMessage);
+                    return;
+                }
+
+                player.RepeatMode = player.RepeatMode == TrackRepeatMode.None ? TrackRepeatMode.Track : TrackRepeatMode.None;
+                await ctx.CreateResponseAsync($"Looping is now {(player.RepeatMode == TrackRepeatMode.Track ? EnabledMessage : DisabledMessage)}.");
+            }
+            catch (Exception ex)
+            {
+                await ctx.CreateResponseAsync($"An exception occurred during playback: `{ex.GetType()}: {ex.Message}`");
+            }
+        }
+
+        [SlashCommand("shuffle", "Enables or disables shuffling the current queue")]
+        public static async Task ShuffleQueue(InteractionContext ctx)
+        {
+            try
+            {
+                var player = await GetAudioService(ctx).Players.GetPlayerAsync<QueuedLavalinkPlayer>(
+                    ctx.Guild.Id);
+
+                if (player == null)
+                {
+                    await ctx.CreateResponseAsync(NotConnectedMessage);
+                    return;
+                }
+
+                player.Shuffle = !player.Shuffle;
+                await ctx.CreateResponseAsync($"Shuffling is now {(player.Shuffle ? EnabledMessage : DisabledMessage)}.");
+            }
+            catch (Exception ex)
+            {
+                await ctx.CreateResponseAsync($"An exception occurred during playback: `{ex.GetType()}: {ex.Message}`");
+            }
+        }
+
+        [SlashCommand("status", "Gets the current status of music man")]
+        public static async Task Status(InteractionContext ctx)
+        {
+
+            try
+            {
+                var player = await GetAudioService(ctx).Players.GetPlayerAsync<QueuedLavalinkPlayer>(
+                    ctx.Guild.Id);
+
+                if (player == null)
+                {
+                    await ctx.CreateResponseAsync(NotConnectedMessage);
+                    return;
+                }
+
+                // get list of queued tracks
+                var current = player.CurrentItem?.Identifier;
+                int queuedTracks = player.Queue.Count;
+                bool shuffleState = player.Shuffle;
+                bool loopState = player.RepeatMode == TrackRepeatMode.Track;
+
+                string message;
+                if (current == null)
+                {
+                    message = "No track is currently playing.";
+                }
+                else if (queuedTracks == 0)
+                {
+                    message = $"Currently playing: {current}\nNo tracks in the queue.";
+                }
+                else
+                {
+                    message = $"Currently playing: {current}\n{queuedTracks} tracks in the queue.";
+                }
+
+                message += $"\nShuffle: {(shuffleState ? EnabledMessage : DisabledMessage)}\nLoop: {(loopState ? EnabledMessage : DisabledMessage)}";
+                await ctx.CreateResponseAsync(message);
+            }
+            catch (Exception ex)
+            {
+                await ctx.CreateResponseAsync($"An exception occurred during playback: `{ex.GetType()}: {ex.Message}`");
             }
         }
 
